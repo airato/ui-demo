@@ -43,7 +43,11 @@ const cwd = process.cwd();
     }
 
     if (depNameToUpgrade) {
-      upgradeDependencies(packages, packageList, [{ name: depNameToUpgrade, newVersion }]);
+      if (newVersion) {
+        upgradeDependencies(packages, packageList, [{ name: depNameToUpgrade, newVersion }], true);
+      } else {
+        upgradeDependencies(packages, packageList, [{ name: depNameToUpgrade, newVersion }]);
+      }
     } else {
       checkAllForDifferentVersions(packages);
     }
@@ -107,7 +111,7 @@ const cwd = process.cwd();
       .filter(pkg => inqResults.packages.includes(pkg.value))
       .map(pkg => ({ name: pkg.value, newVersion: pkg.newVersion }));
 
-    await upgradeDependencies(packages, packageList, upgrades);
+    await upgradeDependencies(packages, packageList, upgrades, true);
 
     console.log('Success!');
   }
@@ -190,7 +194,7 @@ function checkAllForDifferentVersions(packages) {
   }
 }
 
-async function upgradeDependencies(packages, packageList, upgrades) {
+async function upgradeDependencies(packages, packageList, upgrades, writeFiles) {
   upgrades.forEach(({ name }) => {
     if (!packages[name]) {
       throw new Error(`dependency ${name} is not found in any packages`);
@@ -222,11 +226,13 @@ async function upgradeDependencies(packages, packageList, upgrades) {
     });
   });
 
-  upgrades.forEach(({ name, newVersion }) => {
-    packageList.filter(({ json }) => filesToWrite[json.name]).forEach(({ json, pkgPath }) => {
-      console.log(`  write updates to ${pkgPath}/package.json`);
-      fs.writeFileSync(path.join(pkgPath, 'package.json'), JSON.stringify(json, undefined, '  ') + '\n');
+  if (writeFiles) {
+    upgrades.forEach(({ name, newVersion }) => {
+      packageList.filter(({ json }) => filesToWrite[json.name]).forEach(({ json, pkgPath }) => {
+        console.log(`  write updates to ${pkgPath}/package.json`);
+        fs.writeFileSync(path.join(pkgPath, 'package.json'), JSON.stringify(json, undefined, '  ') + '\n');
+      });
+      console.log(`  package.json files updated`);
     });
-    console.log(`  package.json files updated`);
-  });
+  }
 }

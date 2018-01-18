@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { gql, graphql } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Subhead } from 'rebass';
 import { FormattedMessage, FormattedPlural, FormattedRelative } from 'react-intl';
 import Link from 'z-frontend-forms/src/Link';

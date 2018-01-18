@@ -1,4 +1,10 @@
-import { renderApp, createApolloClient, createRouterProvider, createIntlProvider } from 'z-frontend-app-bootstrap';
+import {
+  renderApp,
+  createReduxProvider,
+  createApolloClient,
+  createRouterProvider,
+  createIntlProvider,
+} from 'z-frontend-app-bootstrap';
 import { createThemeProvider } from 'z-frontend-theme';
 
 import reducers from './reducers';
@@ -13,7 +19,8 @@ renderApp({
   App,
   providers: [
     createIntlProvider(),
-    createApolloClient({ apolloClientOptions, reducers }),
+    createReduxProvider({ reducers }),
+    createApolloClient(apolloClientOptions),
     createThemeProvider(),
     createRouterProvider(),
   ],
