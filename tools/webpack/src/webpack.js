@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const globSync = require('glob').sync;
 let getWebpackConfig = require('./webpack.client.config.js');
-const getAppName = require('./getAppName');
+// const getAppName = require('./getAppName');
 
 const proxies = globSync('./proxies/**/*.js', { cwd: __dirname }).map(require);
 
@@ -17,48 +17,54 @@ if (fs.existsSync(projectsWebPackConfigPath)) {
 
 const getDefaultConfigOptions = () => ({ port: process.env.PORT || 3023 });
 
-const appName = getAppName();
+// const appName = getAppName();
 
 module.exports = {
   start() {
     const app = express();
 
-    const pathPrefix = '/app';
-    const mountPath = `${pathPrefix}/:appName/`;
-    app.get('/', (req, res) => {
-      res.redirect(`${pathPrefix}/${appName}/`);
-    });
-    app.get(`${pathPrefix}/:appName`, (req, res, next) => {
-      if (req.url[req.url.length - 1] !== '/') {
-        res.redirect(`${pathPrefix}/${req.params.appName}/`);
-      } else {
-        next();
-      }
-    });
+    // const pathPrefix = '/app';
+    const mountPath = '/'; // `${pathPrefix}/:appName/`;
+    // app.get('/', (req, res) => {
+    //   res.redirect(`${pathPrefix}/${appName}/`);
+    // });
+    // app.get(`${pathPrefix}/:appName`, (req, res, next) => {
+    //   if (req.url[req.url.length - 1] !== '/') {
+    //     res.redirect(`${pathPrefix}/${req.params.appName}/`);
+    //   } else {
+    //     next();
+    //   }
+    // });
 
     const configOptions = getDefaultConfigOptions();
     const webpackConfig = getWebpackConfig(configOptions);
     const compiler = webpack(webpackConfig);
-    app.use(
-      mountPath,
-      webpackDev(compiler, {
-        stats: {
-          colors: true,
-          chunks: false,
-          chunkModules: false,
-          children: false,
-        },
-      }),
-    );
+    const devMiddleware = webpackDev(compiler, {
+      stats: {
+        colors: true,
+        chunks: false,
+        chunkModules: false,
+        children: false,
+      },
+    });
+
+    app.use(mountPath, devMiddleware);
 
     app.use(mountPath, express.static('public'));
+
     app.use(
       mountPath,
       webpackHot(compiler, {
         reload: true,
       }),
     );
+
     proxies.forEach(proxy => proxy(app));
+
+    app.get('*', (req, res) => {
+      const index = devMiddleware.fileSystem.readFileSync(path.join(webpackConfig.output.path, '/index.html'));
+      res.end(index);
+    });
 
     app.listen(configOptions.port);
 

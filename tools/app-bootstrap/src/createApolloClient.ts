@@ -8,6 +8,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { ApolloProvider } from 'react-apollo';
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { Store } from 'react-redux';
+import fetch from 'unfetch';
 
 type GetAdditonalHeaders = () => { [key: string]: string };
 
@@ -26,13 +27,13 @@ function initializeNetworkInterface(getAdditionalHeaders: GetAdditonalHeaders) {
     }
   }
   let apolloLink = createHttpLink({
+    fetch: window.fetch || fetch,
     uri: graphqlUrl,
     // credentials: 'same-origin',
     credentials: 'include',
     // transportBatching: true,
   });
 
-  // TODO: MM: extract so we can re-use this in abstract.js and other apps
   // function getCookie(name) {
   //   let cookieValue = null;
   //   if (document.cookie && document.cookie !== '') {
@@ -49,32 +50,23 @@ function initializeNetworkInterface(getAdditionalHeaders: GetAdditonalHeaders) {
   //   return cookieValue;
   // }
 
-  function setDefaultHeaders(req) {
-    // Ideally would just use https://developer.mozilla.org/en-US/docs/Web/API/URL/URL
-    //  But due to compatibility used
-    //  http://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-    //  this won't work with service workers since we don't have the dom
-    // if (window && window.document) {
-    //   const ajaxToken = (new RegExp(`(?:^|; )${encodeURIComponent('ajaxtoken')}=([^;]*)`).exec(
-    //     window.document.cookie,
-    //   ) || [null, null])[1];
-    //   const a = window.document.createElement('a');
-    //   a.href = req.url;
-    //   // The below check for !a.host is because IE for relative URLs i.e. (/my_fav_api)
-    //   //  doesn't put anything in host which is a reasonable choice.
-    //   if (!a.host || a.host === window.location.host) {
-    //     req.options.headers['X-CSRFToken'] = getCookie('csrftoken');
-    //     req.options.headers['X-PAGEUrl'] = window.location.href;
-    //     req.options.headers['X-AJAXToken'] = ajaxToken;
-    //   }
-    // }
+  function setDefaultHeaders() {
+    const headers = {};
+    if (window && window.document) {
+      // const ajaxToken = (new RegExp(`(?:^|; )${encodeURIComponent('ajaxtoken')}=([^;]*)`).exec(
+      //   window.document.cookie,
+      // ) || [null, null])[1];
+      // headers['X-CSRFToken'] = getCookie('csrftoken');
+      // headers['X-PAGEUrl'] = window.location.href;
+      // headers['X-AJAXToken'] = ajaxToken;
+    }
+    return headers;
   }
 
-  const middlewareLink = setContext(req => {
-    const headers = {};
-
-    headers['accept'] = 'application/json';
-    setDefaultHeaders(req);
+  const middlewareLink = setContext(() => {
+    const headers = {
+      ...setDefaultHeaders(),
+    };
 
     if (typeof getAdditionalHeaders === 'function') {
       const additonalHeaders = getAdditionalHeaders();
@@ -91,13 +83,15 @@ function initializeNetworkInterface(getAdditionalHeaders: GetAdditonalHeaders) {
     if (graphQLErrors && graphQLErrors.length) {
       graphQLErrors.forEach(err => {
         if (__DEVELOPMENT__) {
-          console.error('Got error from GraphQL server', err);
+          console.error('Got a graphql error', err);
         }
       });
     }
-    // if (networkError.statusCode === 401) {
-    //   // logout();
-    // }
+    if ((networkError as any).statusCode === 401) {
+      if (__DEVELOPMENT__) {
+        console.error('Got a network error from GraphQL server', networkError);
+      }
+    }
   });
 
   apolloLink = errorLink.concat(apolloLink);
@@ -157,7 +151,7 @@ interface ApolloClientCreatorProps {
   store?: Store<{}>;
 }
 
-interface ApolloClientOptions {
+export interface ApolloClientOptions {
   mockConfig?: any;
   getAdditionalHeaders?: GetAdditonalHeaders;
 }

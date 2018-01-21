@@ -10,6 +10,7 @@ const rules = require('./rules');
 const plugins = require('./plugins');
 const getAppName = require('./getAppName');
 
+const PORT = process.env.PORT || 3023;
 const ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = ENV === 'production';
 const NO_MAPS = !!process.env.NO_MAPS;
@@ -23,7 +24,7 @@ module.exports = function getConfig() {
         IS_PROD && require.resolve('babel-polyfill'),
         !IS_PROD && 'react-hot-loader/patch',
         './src/index',
-        !IS_PROD && `${require.resolve(`webpack-hot-middleware/client`)}?path=/app/${appName}/__webpack_hmr`,
+        !IS_PROD && `${require.resolve(`webpack-hot-middleware/client`)}?path=http://localhost:${PORT}/__webpack_hmr`,
       ]),
       'vendor-static': ['react', 'lodash', 'styled-components', 'rebass'],
     },
@@ -33,7 +34,7 @@ module.exports = function getConfig() {
       // and https://webpack.js.org/guides/caching/
       filename: `[name].${IS_PROD ? '[chunkhash]' : 'chunkhash-will-be-here'}.js`,
       // chunkFilename: 'app/name/[name].bundle-[chunkhash].js',
-      publicPath: `/app/${appName}/`,
+      publicPath: `http://localhost:${PORT}/`,
     },
     devtool: NO_MAPS ? false : 'source-map',
     // devtool: NO_MAPS ? false : 'cheap-module-source-map',

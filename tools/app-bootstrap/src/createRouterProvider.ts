@@ -1,5 +1,5 @@
-import { HashRouter as Router } from 'react-router-dom';
+import { HashRouter, BrowserRouter } from 'react-router-dom';
 
-export default function createRouterProvider() {
-  return Router;
+export default function createRouterProvider(useBrowserRouter = false) {
+  return useBrowserRouter ? BrowserRouter : HashRouter;
 }
