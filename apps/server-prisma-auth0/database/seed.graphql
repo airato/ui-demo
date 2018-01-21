@@ -1,0 +1,18 @@
+mutation {
+  createUser(
+    data: {
+      email: "a@a.com"
+      auth0Id: "auth0|5a63f8e38f46ac2556c7e301" # password: "123"
+      name: "Harry"
+      posts: {
+        create: [
+          { title: "Hello World", text: "This is my first blog post ever!", isPublished: true }
+          { title: "My Second Post", text: "My first post was good, but this one is better!", isPublished: true }
+          { title: "Solving World Hunger", text: "This is a draft...", isPublished: false }
+        ]
+      }
+    }
+  ) {
+    id
+  }
+}

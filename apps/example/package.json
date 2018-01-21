@@ -17,8 +17,9 @@
     "node": "^9.3.0"
   },
   "dependencies": {
+    "graphql-tag": "^2.6.1",
     "react": "^16.2.0",
-    "react-apollo": "^1.4.15",
+    "react-apollo": "^2.0.4",
     "react-dom": "^16.2.0",
     "react-intl": "^2.3.0",
     "react-redux": "^5.0.6",

@@ -1,0 +1,11 @@
+PORT=8081
+NODE_ENV="dev"
+PRISMA_STAGE="dev"
+PRISMA_ENDPOINT="http://localhost:60000/z-frontend-server-prisma-auth0/dev"
+PRISMA_CLUSTER="local"
+PRISMA_SECRET="mysecret123"
+APP_SECRET="jwtsecret123"
+AUTH0_DOMAIN="z-frontend-test-auth0"
+AUTH0_API_AUDIENCE="http://localhost:8081"
+AUTH0_MANAGEMENT_CLIENT_ID="TMXSnrr3k6eKJD2KViOsaR7nFNQ5vvDr"
+AUTH0_MANAGEMENT_CLIENT_SECRET="I53I0tqQ9jwQkJCtLxPbkypvrKxr8VeWQPo3JvgWpTMOy5K6U2cSyKmUPU0iDmlH"

@@ -1,0 +1,6 @@
+NODE_ENV="dev"
+PRISMA_STAGE="dev"
+PRISMA_ENDPOINT="http://localhost:4466/z-frontend-server-prisma/dev"
+PRISMA_CLUSTER="local"
+PRISMA_SECRET="mysecret123"
+APP_SECRET="jwtsecret123"
